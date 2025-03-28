@@ -1,0 +1,14 @@
+# Ignore environment variables file
+langchain_env/.env
+
+# Ignore virtual environment folders
+langchain_env/Lib/
+langchain_env/Include/
+langchain_env/Scripts/
+langchain_env/pyvenv.cfg
+
+# Ignore temporary files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
