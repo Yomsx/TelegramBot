@@ -39,8 +39,8 @@ def generate_response(inputs):
     prompt = prompt_template.format(message=user_message, history=conversation_history)
     
     # Generate the response using invoke()
-    response = llm.invoke([{"role": "user", "content": prompt}])
-    response_text = response[0].content  # Extract response text from the object
+    response = llm.invoke(prompt)  # Removed list brackets to get the actual response
+    response_text = response.content  # Correctly access the content attribute
 
     # Save conversation in memory
     memory.save_context({"message": user_message}, {"response": response_text})
