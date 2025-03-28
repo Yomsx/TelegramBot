@@ -7,6 +7,8 @@ from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory  # Import memory
 from telegram import Update
 from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
+from langchain_openai import ChatOpenAI
+
 
 # Load environment variables from .env file
 load_dotenv()
