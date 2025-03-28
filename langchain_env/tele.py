@@ -36,9 +36,16 @@ prompt_template = PromptTemplate(
 def generate_response(inputs):
     user_message = inputs["message"]
     conversation_history = memory.load_memory_variables({}).get("history", "")
-    response = llm.invoke([prompt_template.format(message=user_message, history=conversation_history)])
-    memory.save_context({"message": user_message}, {"response": response})
-    return {"response": response[0].content}  # Extract content from response
+    prompt = prompt_template.format(message=user_message, history=conversation_history)
+    
+    # Generate the response using invoke()
+    response = llm.invoke([{"role": "user", "content": prompt}])
+    response_text = response[0].content  # Extract response text from the object
+
+    # Save conversation in memory
+    memory.save_context({"message": user_message}, {"response": response_text})
+    
+    return {"response": response_text}
 
 # Create a LangChain TransformChain with memory
 response_chain = TransformChain(
