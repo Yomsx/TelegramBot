@@ -6,20 +6,19 @@ from langchain.chains import TransformChain  # New method for handling requests
 from langchain.prompts import PromptTemplate
 from langchain.memory import ConversationBufferMemory  # Import memory
 from telegram import Update
-from telegram.ext import ApplicationBuilder, CommandHandler, MessageHandler, filters, ContextTypes
+from telegram.ext import ApplicationBuilder, MessageHandler, filters, ContextTypes
 
 # Load environment variables from .env file
 load_dotenv()
 
 # Get API keys from the .env file
-openai.api_key = os.getenv("OPENAI_API_KEY")
+openai_api_key = os.getenv("OPENAI_API_KEY")
 telegram_bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
-print(f"OpenAI API Key: {os.getenv('OPENAI_API_KEY')}")
+
+print(f"OpenAI API Key: {openai_api_key}")
 
 # Initialize the ChatOpenAI model (Using GPT-4)
-llm = ChatOpenAI(model_name="gpt-4", openai_api_key=os.getenv("OPENAI_API_KEY"))
-
-
+llm = ChatOpenAI(model_name="gpt-4", openai_api_key=openai_api_key)
 
 # Initialize memory for conversation
 memory = ConversationBufferMemory()
@@ -36,15 +35,10 @@ prompt_template = PromptTemplate(
 # Define the transformation process (New LangChain method)
 def generate_response(inputs):
     user_message = inputs["message"]
-    conversation_history = memory.load_memory_variables({})["history"]
-    
-    # Use the recommended predict_messages() method
-    response = llm.predict_messages(prompt_template.format(message=user_message, history=conversation_history))
-    
-    # Save the conversation in memory
+    conversation_history = memory.load_memory_variables({}).get("history", "")
+    response = llm.invoke([prompt_template.format(message=user_message, history=conversation_history)])
     memory.save_context({"message": user_message}, {"response": response})
-    
-    return {"response": response.content}  # Extract content from the response object
+    return {"response": response[0].content}  # Extract content from response
 
 # Create a LangChain TransformChain with memory
 response_chain = TransformChain(
@@ -69,4 +63,3 @@ app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_telegram_
 # Start the bot
 print("✅ Telegram AI Bot with Memory is now running...")
 app.run_polling()
-
